@@ -1,8 +1,6 @@
 config {
     type: "assertion",
-    schema: "wikipedia",
-    name: "assert_no_zero_views",
-    description: "Verifies that total_views in daily_pageviews_by_title are never zero."
+    schema: "wikipedia"
 }
 
 SELECT

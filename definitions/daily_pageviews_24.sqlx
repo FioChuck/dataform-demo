@@ -1,8 +1,6 @@
 config {
     type: "table",
     schema: "wikipedia",
-    name: "daily_pageviews_24",
-    description: "Daily page views for selected Wikipedia titles",
     bigquery: {
         partitionBy: "day"
     }

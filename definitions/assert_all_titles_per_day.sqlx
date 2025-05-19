@@ -1,0 +1,43 @@
+config {
+    type: "assertion",
+    dependencies: ["daily_pageviews_24"]
+}
+
+WITH
+  expected_titles AS (
+  SELECT
+    'Alphabet_Inc.' AS title
+  UNION ALL
+  SELECT
+    'Microsoft'
+  UNION ALL
+  SELECT
+    'Amazon_(company)'
+  UNION ALL
+  SELECT
+    'Apple_Inc.'
+  UNION ALL
+  SELECT
+    'Meta_Platforms' ),
+  daily_title_counts AS (
+  SELECT
+    day,
+    COUNT(DISTINCT title) AS actual_title_count
+  FROM
+    ${ref("daily_pageviews_24")}
+  GROUP BY
+    day ),
+  total_expected_titles AS (
+  SELECT
+    COUNT(DISTINCT title) AS count_expected
+  FROM
+    expected_titles )
+SELECT
+  dtc.day,
+  dtc.actual_title_count,
+  tet.count_expected
+FROM
+  daily_title_counts AS dtc,
+  total_expected_titles AS tet
+WHERE
+  dtc.actual_title_count != tet.count_expected
