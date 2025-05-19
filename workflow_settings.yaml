@@ -1,0 +1,5 @@
+defaultProject: cf-data-analytics
+defaultLocation: US
+defaultDataset: wikipedia
+defaultAssertionDataset: wikipedia
+dataformCoreVersion: 3.0.0
