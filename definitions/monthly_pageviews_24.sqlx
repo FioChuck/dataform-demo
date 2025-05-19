@@ -1,0 +1,20 @@
+config {
+    type: "table",
+    schema: "wikipedia",
+    name: "monthly_summary",
+    dependencies: [
+        "assert_no_zero_views"
+    ]
+}
+
+SELECT
+  title,
+  FORMAT_DATE('%Y-%m', day) AS month,
+  SUM(total_views) AS monthly_total_views
+FROM
+  ${ref("daily_pageviews_24")}
+GROUP BY
+  title,
+  month
+ORDER BY
+  monthly_total_views DESC

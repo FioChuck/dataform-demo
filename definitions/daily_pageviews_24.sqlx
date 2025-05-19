@@ -1,0 +1,28 @@
+config {
+    type: "table",
+    schema: "wikipedia",
+    name: "daily_pageviews_24",
+    description: "Daily page views for selected Wikipedia titles",
+    bigquery: {
+        partitionBy: "day"
+    }
+}
+
+SELECT
+  title,
+  DATE(datehour) AS day,
+  SUM(views) AS total_views
+FROM
+  `bigquery-public-data.wikipedia.pageviews_2024`
+WHERE
+  DATE(datehour) BETWEEN '2024-01-01'
+  AND '2024-12-31'
+  AND wiki = 'en'
+  AND title IN ("Alphabet_Inc.",
+    "Microsoft",
+    "Amazon_(company)",
+    "Apple_Inc.",
+    "Meta_Platforms")
+GROUP BY
+  title,
+  day
