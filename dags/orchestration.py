@@ -1,4 +1,3 @@
-from datetime import datetime
 
 from airflow import models
 from airflow.models.baseoperator import chain
@@ -42,5 +41,5 @@ with models.DAG(
 create_compilation_result >> create_workflow_invocation
 
 if __name__ == "__main__":
-    # dag.cli()
-    dag.test()
+    dag.cli()
+    # dag.test()
