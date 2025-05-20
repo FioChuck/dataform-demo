@@ -1,0 +1,32 @@
+name: Composer CICD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  deployment:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    name: Deploy to Composer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{secrets.IDENTITY_PROVIDER}}
+          service_account: ${{secrets.SA}}
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: "Save DAGs to GCS using gcloud"
+        run: gcloud storage cp "dags/*.py" "gs://cf-cloud-composer-dags/dags/"
+
+      - name: "Update composer dependencies"
+        run: gcloud composer environments update etl-orchestration --location us-central1 --update-pypi-packages-from-file requirements.txt | (grep -v 'No change in configuration. Must specify a change to configuration.software_configuration.pypi_dependencies' || true)
