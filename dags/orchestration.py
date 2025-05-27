@@ -1,6 +1,5 @@
 
 from airflow import models
-from airflow.models.baseoperator import chain
 from airflow.providers.google.cloud.operators.dataform import (
     DataformCreateCompilationResultOperator,
     DataformCreateWorkflowInvocationOperator,
@@ -24,7 +23,8 @@ with models.DAG(
         region=REGION,
         repository_id=REPOSITORY_ID,
         compilation_result={
-            "git_commitish": GIT_COMMITISH,
+            # "git_commitish": GIT_COMMITISH,
+            "workspace": "cf-dev"
         },
     )
     create_workflow_invocation = DataformCreateWorkflowInvocationOperator(
