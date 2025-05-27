@@ -24,3 +24,4 @@ WHERE
 GROUP BY
   title,
   day
+AND
