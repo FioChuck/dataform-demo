@@ -25,6 +25,12 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
 
+      - name: "Install Dataform"
+        run: gcloud storage cp "dags/*.py" "gs://cf-cloud-composer-dags/dags/"
+
+      - name: "Dataform Run"
+        run: dataform compile
+
       - name: "Save DAGs to GCS using gcloud"
         run: gcloud storage cp "dags/*.py" "gs://cf-cloud-composer-dags/dags/"
 

@@ -5,3 +5,4 @@ dataform.json
 package.json
 package-lock.json
 .df-credentials.json
+composer/
