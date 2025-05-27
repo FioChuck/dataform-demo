@@ -24,8 +24,8 @@ with models.DAG(
         repository_id=REPOSITORY_ID,
         compilation_result={
             # "git_commitish": GIT_COMMITISH,
-            "workspace": "projects/cf-data-analytics/locations/us-central1/repositories/dataform-demo/workspaces/cf-dev"
-            # projects/cf-data-analytics/locations/us/repositories/dataform-demo/workspaces/cf-dev
+            # "workspace": "projects/cf-data-analytics/locations/us-central1/repositories/dataform-demo/workspaces/cf-dev",
+            "release_config": "projects/cf-data-analytics/locations/us-central1/repositories/dataform-demo/releaseConfigs/production"
         },
     )
     create_workflow_invocation = DataformCreateWorkflowInvocationOperator(
