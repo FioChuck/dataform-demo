@@ -26,7 +26,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v2"
 
       - name: "Install Dataform"
-        run: gcloud storage cp "dags/*.py" "gs://cf-cloud-composer-dags/dags/"
+        run: npm i -g @dataform/cli@^3.0.0-beta.2s
 
       - name: "Dataform Run"
         run: dataform compile
