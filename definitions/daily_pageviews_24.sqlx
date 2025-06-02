@@ -11,7 +11,7 @@ SELECT
   DATE(datehour) AS day,
   SUM(views) AS total_views
 FROM
-  `bigquery-public-data.wikipedia.pageviews_2024`
+  ${ref("pageviews_2024")}
 WHERE
   DATE(datehour) BETWEEN '2024-01-01'
   AND '2024-12-31'
@@ -24,4 +24,3 @@ WHERE
 GROUP BY
   title,
   day
-AND
