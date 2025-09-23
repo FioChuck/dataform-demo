@@ -1,3 +1,7 @@
+js {
+  const constants = require("includes/constants");
+}
+
 config {
     type: "table",
     schema: "wikipedia",
@@ -8,7 +12,7 @@ config {
 }
 
 SELECT
-  title,
+  IFNULL(title, ${constants.default_for_strings}) AS title,
   FORMAT_DATE('%Y-%m', day) AS month,
   SUM(total_views) AS monthly_total_views
 FROM
