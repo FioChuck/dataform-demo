@@ -1,0 +1,11 @@
+config {
+  type: "operations",
+  hasOutput: true,
+  database: "cf-data-analytics"
+}
+
+CREATE OR REPLACE FUNCTION ${self()} (input_string STRING)
+RETURNS STRING
+AS (
+  REPLACE(input_string, '_', ' ')
+);

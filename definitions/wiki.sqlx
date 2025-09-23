@@ -1,0 +1,6 @@
+config {
+    type: "declaration",
+    database: "bigquery-public-data",
+    schema: "wikipedia",
+    name: "pageviews_2024"
+}
