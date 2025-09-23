@@ -1,0 +1,29 @@
+config {
+  type: "view",
+}
+
+SELECT
+  wiki_data.en_wiki,
+  wiki_data.en_description,
+  wiki_data.en_label,
+  SUM(pageviews.views) AS total_views
+FROM
+  `bigquery-public-data.wikipedia.wikidata` AS wiki_data
+LEFT JOIN
+  `bigquery-public-data.wikipedia.pageviews_2024` AS pageviews
+ON
+  wiki_data.en_wiki = pageviews.title
+WHERE
+  DATE(pageviews.datehour) BETWEEN '2024-01-01'
+  AND '2024-12-31'
+  AND wiki_data.numeric_id IN (20800404,
+    2283,
+    3884,
+    312,
+    380)
+  AND wiki_data.type = "item"
+  AND wiki_data.fake_date = "2000-01-01"
+GROUP BY
+  1,
+  2,
+  3
