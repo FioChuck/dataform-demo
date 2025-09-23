@@ -1,11 +1,12 @@
 config {
-  type: "view",
+    type: "view",
+    schema: "wikipedia",
 }
 
 SELECT
   wiki_data.en_wiki,
+  ${resolve("clean_string")}(wiki_data.en_wiki) AS page,
   wiki_data.en_description,
-  wiki_data.en_label,
   SUM(pageviews.views) AS total_views
 FROM
   `bigquery-public-data.wikipedia.wikidata` AS wiki_data
