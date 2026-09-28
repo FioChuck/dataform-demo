@@ -1,0 +1,28 @@
+config {
+  type: "test",
+  dataset: "daily_pageviews_24"
+}
+
+input "pageviews_2024" {
+  -- 1. Valid: Matches all criteria
+  SELECT CAST('Alphabet_Inc.' AS STRING) AS title, CAST('2024-05-01 12:00:00' AS TIMESTAMP) AS datehour, CAST(100 AS INT64) AS views, CAST('en' AS STRING) AS wiki UNION ALL
+  
+  -- 2. Valid: Same day, should aggregate with the row above
+  SELECT CAST('Alphabet_Inc.' AS STRING) AS title, CAST('2024-05-01 15:00:00' AS TIMESTAMP) AS datehour, CAST(50 AS INT64) AS views, CAST('en' AS STRING) AS wiki UNION ALL
+  
+  -- 3. Invalid: Wrong wiki language ('fr' should be filtered out)
+  SELECT CAST('Alphabet_Inc.' AS STRING) AS title, CAST('2024-05-01 12:00:00' AS TIMESTAMP) AS datehour, CAST(100 AS INT64) AS views, CAST('fr' AS STRING) AS wiki UNION ALL
+  
+  -- 4. Invalid: Title not in the allowed IN clause (Netflix should be filtered out)
+  SELECT CAST('Netflix' AS STRING) AS title, CAST('2024-05-01 12:00:00' AS TIMESTAMP) AS datehour, CAST(100 AS INT64) AS views, CAST('en' AS STRING) AS wiki UNION ALL
+  
+  -- 5. Invalid: Outside the date range (2023 should be filtered out)
+  SELECT CAST('Microsoft' AS STRING) AS title, CAST('2023-12-31 23:59:59' AS TIMESTAMP) AS datehour, CAST(200 AS INT64) AS views, CAST('en' AS STRING) AS wiki UNION ALL
+  
+  -- 6. Valid: A second company to verify correct GROUP BY behavior
+  SELECT CAST('Microsoft' AS STRING) AS title, CAST('2024-05-01 12:00:00' AS TIMESTAMP) AS datehour, CAST(200 AS INT64) AS views, CAST('en' AS STRING) AS wiki
+}
+
+-- Expected Output
+SELECT CAST('Alphabet_Inc.' AS STRING) AS title, CAST('2024-05-01' AS DATE) AS day, CAST(150 AS INT64) AS total_views UNION ALL
+SELECT CAST('Microsoft' AS STRING) AS title, CAST('2024-05-01' AS DATE) AS day, CAST(200 AS INT64) AS total_views
