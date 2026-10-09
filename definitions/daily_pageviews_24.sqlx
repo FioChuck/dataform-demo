@@ -1,6 +1,7 @@
 config {
     type: "table",
     schema: "wikipedia",
+    tags: ["silver"],
     bigquery: {
         partitionBy: "day"
     }

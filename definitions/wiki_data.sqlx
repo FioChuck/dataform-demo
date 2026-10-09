@@ -1,6 +1,7 @@
 config {
     type: "view",
     schema: "wikipedia",
+    tags: ["silver"],
 }
 
 SELECT

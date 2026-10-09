@@ -1,6 +1,7 @@
 config {
   type: "operations",
   hasOutput: true,
+  tags: ["silver"],
   database: "cf-data-analytics"
 }
 

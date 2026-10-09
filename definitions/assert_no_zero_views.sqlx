@@ -1,6 +1,7 @@
 config {
     type: "assertion",
-    schema: "wikipedia"
+    schema: "wikipedia",
+    tags: ["silver"]
 }
 
 SELECT

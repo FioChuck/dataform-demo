@@ -25,11 +25,14 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
 
-      - name: "Install Dataform"
-        run: npm i -g @dataform/cli@^3.0.0-beta.2s
-
-      - name: "Dataform Run"
-        run: dataform run
+      - name: "Compile Dataform Production Release"
+        id: compile_production
+        env:
+          PROJECT_ID: "cf-data-analytics"
+          REGION: "us-central1"
+          REPOSITORY_ID: "dataform-demo"
+          RELEASE_CONFIG: "production"
+        run: bash .github/scripts/compile_dataform.sh
 
       - name: "Save DAGs to GCS using gcloud"
         run: gcloud storage cp "dags/*.py" "gs://cf-cloud-composer-dags/dags/"
