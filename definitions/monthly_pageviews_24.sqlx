@@ -9,7 +9,8 @@ config {
     dependencies: [
         "assert_no_zero_views",
         "assert_all_titles_per_day"
-    ]
+    ],
+    errror
 }
 
 SELECT
