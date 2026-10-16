@@ -1,0 +1,14 @@
+config {
+    type: "assertion",
+    schema: "wikipedia",
+    tags: ["gold"]
+}
+
+SELECT
+  title,
+  day,
+  total_views
+FROM
+  ${ref("daily_pageviews_24")}
+WHERE
+  total_views < 2000
