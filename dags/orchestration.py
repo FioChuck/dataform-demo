@@ -9,9 +9,14 @@ REPOSITORY_ID = "dataform-demo"
 REGION = "us-central1"
 WORKFLOW_ID = "prod-workflow-curated"
 
+default_args = {
+    "retries": 0,
+}
+
 with models.DAG(
     DAG_ID,
     schedule=None,
+    default_args=default_args,
     tags=["dataform"],
 ) as dag:
     curated_dag = DataformCreateWorkflowInvocationOperator(
@@ -24,6 +29,7 @@ with models.DAG(
                 f"projects/{PROJECT_ID}/locations/{REGION}/repositories/{REPOSITORY_ID}/workflowConfigs/prod-workflow-curated"
             )
         },
+        retries=0,
     )
 
     consumption_dag = DataformCreateWorkflowInvocationOperator(
@@ -36,6 +42,7 @@ with models.DAG(
                 f"projects/{PROJECT_ID}/locations/{REGION}/repositories/{REPOSITORY_ID}/workflowConfigs/prod-workflow-consumption"
             )
         },
+        retries=0,
     )
 
     curated_dag >> consumption_dag

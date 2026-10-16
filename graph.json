@@ -1,0 +1,336 @@
+{
+    "tables": [
+        {
+            "type": "table",
+            "target": {
+                "schema": "wikipedia",
+                "name": "daily_pageviews_24",
+                "database": "cf-data-analytics"
+            },
+            "query": "\n\nSELECT\n  title,\n  DATE(datehour) AS day,\n  SUM(views) AS total_views\nFROM\n  `bigquery-public-data.wikipedia.pageviews_2024`\nWHERE\n  DATE(datehour) BETWEEN '2024-01-01'\n  AND '2024-12-31'\n  AND wiki = 'en'\n  AND title IN (\"Alphabet_Inc.\",\n    \"Microsoft\",\n    \"Amazon_(company)\",\n    \"Apple_Inc.\",\n    \"Meta_Platforms\")\nGROUP BY\n  title,\n  day",
+            "disabled": false,
+            "fileName": "definitions/daily_pageviews_24.sqlx",
+            "bigquery": {
+                "partitionBy": "day"
+            },
+            "tags": [
+                "silver"
+            ],
+            "dependencyTargets": [
+                {
+                    "schema": "wikipedia",
+                    "name": "pageviews_2024",
+                    "database": "bigquery-public-data"
+                }
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "daily_pageviews_24",
+                "database": "cf-data-analytics"
+            },
+            "enumType": "TABLE"
+        },
+        {
+            "type": "table",
+            "target": {
+                "schema": "wikipedia",
+                "name": "monthly_pageviews_24",
+                "database": "cf-data-analytics"
+            },
+            "query": "\n\n\n\nSELECT\n  IFNULL(title, '-1') AS title,\n  FORMAT_DATE('%Y-%m', day) AS month,\n  SUM(total_views) AS monthly_total_views\nFROM\n  `cf-data-analytics.wikipedia.daily_pageviews_24`\nGROUP BY\n  title,\n  month\nORDER BY\n  monthly_total_views DESC",
+            "disabled": false,
+            "fileName": "definitions/monthly_pageviews_24.sqlx",
+            "tags": [
+                "gold"
+            ],
+            "dependencyTargets": [
+                {
+                    "schema": "wikipedia",
+                    "name": "assert_no_zero_views",
+                    "database": "cf-data-analytics"
+                },
+                {
+                    "schema": "wikipedia",
+                    "name": "assert_all_titles_per_day",
+                    "database": "cf-data-analytics"
+                },
+                {
+                    "schema": "wikipedia",
+                    "name": "assert_active_pages",
+                    "database": "cf-data-analytics"
+                },
+                {
+                    "schema": "wikipedia",
+                    "name": "daily_pageviews_24",
+                    "database": "cf-data-analytics"
+                }
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "monthly_pageviews_24",
+                "database": "cf-data-analytics"
+            },
+            "enumType": "TABLE"
+        },
+        {
+            "type": "view",
+            "target": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c_dummy_view",
+                "database": "cf-data-analytics"
+            },
+            "query": "SELECT 1 as col1",
+            "disabled": false,
+            "fileName": "definitions/test_cases.js",
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c_dummy_view",
+                "database": "cf-data-analytics"
+            },
+            "enumType": "VIEW"
+        },
+        {
+            "type": "view",
+            "target": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c",
+                "database": "cf-data-analytics"
+            },
+            "query": "SELECT `cf-data-analytics.wikipedia`.kelvin_to_fahrenheit(test_input_0) AS udf_output\nFROM `cf-data-analytics.wikipedia.kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c_dummy_view`",
+            "disabled": false,
+            "fileName": "definitions/test_cases.js",
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c",
+                "database": "cf-data-analytics"
+            },
+            "enumType": "VIEW"
+        },
+        {
+            "type": "view",
+            "target": {
+                "schema": "wikipedia",
+                "name": "wiki_data",
+                "database": "cf-data-analytics"
+            },
+            "query": "\n\nSELECT\n  wiki_data.en_wiki,\n  `cf-data-analytics.wikipedia.clean_string`(wiki_data.en_wiki) AS page,\n  wiki_data.en_description,\n  SUM(pageviews.views) AS total_views\nFROM\n  `bigquery-public-data.wikipedia.wikidata` AS wiki_data\nLEFT JOIN\n  `bigquery-public-data.wikipedia.pageviews_2024` AS pageviews\nON\n  wiki_data.en_wiki = pageviews.title\nWHERE\n  DATE(pageviews.datehour) BETWEEN '2024-01-01'\n  AND '2024-12-31'\n  AND wiki_data.numeric_id IN (20800404,\n    2283,\n    3884,\n    312,\n    380)\n  AND wiki_data.type = \"item\"\n  AND wiki_data.fake_date = \"2000-01-01\"\nGROUP BY\n  1,\n  2,\n  3\n",
+            "disabled": false,
+            "fileName": "definitions/wiki_data.sqlx",
+            "tags": [
+                "silver"
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "wiki_data",
+                "database": "cf-data-analytics"
+            },
+            "enumType": "VIEW"
+        }
+    ],
+    "operations": [
+        {
+            "target": {
+                "schema": "wikipedia",
+                "name": "clean_string",
+                "database": "cf-data-analytics"
+            },
+            "queries": [
+                "\n\nCREATE OR REPLACE FUNCTION `cf-data-analytics.wikipedia.clean_string` (input_string STRING)\nRETURNS STRING\nAS (\n  REPLACE(input_string, '_', ' ')\n);"
+            ],
+            "fileName": "definitions/clean_string.sqlx",
+            "hasOutput": true,
+            "tags": [
+                "silver"
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "clean_string",
+                "database": "cf-data-analytics"
+            }
+        },
+        {
+            "target": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit",
+                "database": "cf-data-analytics"
+            },
+            "queries": [
+                "\n\nCREATE OR REPLACE FUNCTION `cf-data-analytics.silver.kelvin_to_fahrenheit` (TEMP FLOAT64) RETURNS FLOAT64 AS ((TEMP - 273.15) * 9 / 5 + 32);\n"
+            ],
+            "fileName": "definitions/kelvin_to_fahrenheit.sqlx",
+            "hasOutput": true,
+            "tags": [
+                "silver"
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "kelvin_to_fahrenheit",
+                "database": "cf-data-analytics"
+            }
+        }
+    ],
+    "assertions": [
+        {
+            "query": "\n\nSELECT\n  title,\n  day,\n  total_views\nFROM\n  `cf-data-analytics.wikipedia.daily_pageviews_24`\nWHERE\n  total_views < 2000",
+            "fileName": "definitions/assert_active_pages.sqlx",
+            "target": {
+                "schema": "wikipedia",
+                "name": "assert_active_pages",
+                "database": "cf-data-analytics"
+            },
+            "tags": [
+                "gold"
+            ],
+            "dependencyTargets": [
+                {
+                    "schema": "wikipedia",
+                    "name": "daily_pageviews_24",
+                    "database": "cf-data-analytics"
+                }
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "assert_active_pages",
+                "database": "cf-data-analytics"
+            }
+        },
+        {
+            "query": "\n\nWITH\n  expected_titles AS (\n  SELECT\n    'Alphabet_Inc.' AS title\n  UNION ALL\n  SELECT\n    'Microsoft'\n  UNION ALL\n  SELECT\n    'Amazon_(company)'\n  UNION ALL\n  SELECT\n    'Apple_Inc.'\n  UNION ALL\n  SELECT\n    'Meta_Platforms' ),\n  daily_title_counts AS (\n  SELECT\n    day,\n    COUNT(DISTINCT title) AS actual_title_count\n  FROM\n    `cf-data-analytics.wikipedia.daily_pageviews_24`\n  GROUP BY\n    day ),\n  total_expected_titles AS (\n  SELECT\n    COUNT(DISTINCT title) AS count_expected\n  FROM\n    expected_titles )\nSELECT\n  dtc.day,\n  dtc.actual_title_count,\n  tet.count_expected\nFROM\n  daily_title_counts AS dtc,\n  total_expected_titles AS tet\nWHERE\n  dtc.actual_title_count != tet.count_expected\n",
+            "fileName": "definitions/assert_all_titles_per_day.sqlx",
+            "target": {
+                "schema": "wikipedia",
+                "name": "assert_all_titles_per_day",
+                "database": "cf-data-analytics"
+            },
+            "tags": [
+                "silver"
+            ],
+            "dependencyTargets": [
+                {
+                    "schema": "wikipedia",
+                    "name": "daily_pageviews_24",
+                    "database": "cf-data-analytics"
+                }
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "assert_all_titles_per_day",
+                "database": "cf-data-analytics"
+            }
+        },
+        {
+            "query": "\n\nSELECT\n  title,\n  day,\n  total_views\nFROM\n  `cf-data-analytics.wikipedia.daily_pageviews_24`\nWHERE\n  total_views = 0\n",
+            "fileName": "definitions/assert_no_zero_views.sqlx",
+            "target": {
+                "schema": "wikipedia",
+                "name": "assert_no_zero_views",
+                "database": "cf-data-analytics"
+            },
+            "tags": [
+                "silver"
+            ],
+            "dependencyTargets": [
+                {
+                    "schema": "wikipedia",
+                    "name": "daily_pageviews_24",
+                    "database": "cf-data-analytics"
+                }
+            ],
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "assert_no_zero_views",
+                "database": "cf-data-analytics"
+            }
+        }
+    ],
+    "projectConfig": {
+        "warehouse": "bigquery",
+        "defaultSchema": "wikipedia",
+        "assertionSchema": "wikipedia",
+        "defaultDatabase": "cf-data-analytics",
+        "defaultLocation": "US"
+    },
+    "graphErrors": {},
+    "tests": [
+        {
+            "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c",
+            "testQuery": "SELECT `cf-data-analytics.wikipedia`.kelvin_to_fahrenheit(test_input_0) AS udf_output\nFROM (\n  SELECT CAST(273 AS FLOAT64) AS test_input_0)",
+            "expectedOutputQuery": "SELECT CAST(31.73000000000004 AS FLOAT64) AS udf_output",
+            "fileName": "definitions/test_cases.js"
+        }
+    ],
+    "declarations": [
+        {
+            "target": {
+                "schema": "wikipedia",
+                "name": "pageviews_2024",
+                "database": "bigquery-public-data"
+            },
+            "fileName": "definitions/wiki.sqlx",
+            "canonicalTarget": {
+                "schema": "wikipedia",
+                "name": "pageviews_2024",
+                "database": "bigquery-public-data"
+            }
+        }
+    ],
+    "dataformCoreVersion": "3.0.0",
+    "targets": [
+        {
+            "schema": "wikipedia",
+            "name": "assert_active_pages",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "assert_all_titles_per_day",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "assert_no_zero_views",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "clean_string",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "daily_pageviews_24",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "kelvin_to_fahrenheit",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "monthly_pageviews_24",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c_dummy_view",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "kelvin_to_fahrenheit_fd11da9a-35a0-4e92-8ca4-19534eac279c",
+            "database": "cf-data-analytics"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "pageviews_2024",
+            "database": "bigquery-public-data"
+        },
+        {
+            "schema": "wikipedia",
+            "name": "wiki_data",
+            "database": "cf-data-analytics"
+        }
+    ]
+}
+
