@@ -6,6 +6,10 @@ config {
     type: "table",
     schema: "wikipedia",
     tags: ["gold","other-tag"],
+    assertions: {
+        uniqueKey: ["title", "month"],
+        nonNull: ["title", "month", "monthly_total_views"]
+    },
     dependencies: [
         "assert_no_zero_views",
         "assert_all_titles_per_day",
